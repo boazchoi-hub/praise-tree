@@ -5,21 +5,133 @@
     <title>칭찬 나무 (개인별 관리)</title>
     <style>
         body {
-            font-family: "Comic Sans MS", cursive;
+            font-family: "Noto Sans KR", "맑은 고딕", sans-serif;
             background: #fffde7;
-            text-align: center;
             padding: 20px;
+            margin: 0;
         }
         
         h1 {
             color: #f57f17;
+            text-align: center;
+        }
+        
+        .main-container {
+            display: flex;
+            gap: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .left-section {
+            flex: 1;
+            min-width: 500px;
+            text-align: center;
+        }
+        
+        .right-section {
+            flex: 1;
+            min-width: 400px;
+            max-width: 500px;
+        }
+        
+        /* 선택된 카드 표시 영역 */
+        .selected-card-display {
+            background: linear-gradient(135deg, #fff3e0, #f3e5f5);
+            border: 3px solid #ff9800;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px auto;
+            width: 400px;
+            min-height: 120px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            animation: selectedCardShow 0.3s ease-out;
+            position: relative;
+            display: none;
+        }
+        
+        .selected-card-display.show {
+            display: block;
+        }
+        
+        .selected-card-display::before {
+            content: "🌟 선택된 칭찬 🌟";
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #ff9800;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        
+        .selected-card-content {
+            text-align: center;
+        }
+        
+        .selected-card-content .target-name-large {
+            color: #e65100;
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .selected-card-content .compliment-large {
+            color: #424242;
+            font-size: 18px;
+            font-style: italic;
+            margin: 15px 0;
+            line-height: 1.4;
+        }
+        
+        .selected-card-content .writer-large {
+            color: #1976d2;
+            font-size: 16px;
+            font-weight: bold;
+            margin-top: 15px;
+        }
+        
+        .close-selected {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: #ff5722;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .close-selected:hover {
+            background: #d32f2f;
+            transform: scale(1.1);
+        }
+        
+        @keyframes selectedCardShow {
+            0% {
+                transform: translateY(-30px) scale(0.9);
+                opacity: 0;
+            }
+            100% {
+                transform: translateY(0) scale(1);
+                opacity: 1;
+            }
         }
         
         .tree {
             position: relative;
-            width: 600px;
-            height: 800px;
-            margin: 0px auto;
+            width: 500px;
+            height: 700px;
+            margin: 20px auto;
             background-image: url('trees.png');
             background-size: contain;
             background-repeat: no-repeat;
@@ -28,10 +140,10 @@
         
         .canopy {
             position: absolute;
-            top: 300px;
-            left: 100px;
-            width: 400px;
-            height: 200px;
+            top: 250px;
+            left: 80px;
+            width: 300px;
+            height: 300px;
             border-radius: 50%;
             overflow: visible;
         }
@@ -64,7 +176,7 @@
             transition: transform 0.2s;
         }
         
-        input {
+        input, select {
             padding: 8px;
             margin: 5px;
             border-radius: 6px;
@@ -115,19 +227,60 @@
             background: #fff9c4;
             border: 2px solid #fdd835;
             border-radius: 10px;
-            margin: 10px auto;
+            margin: 10px 0;
             padding: 15px;
-            width: 350px;
             font-size: 16px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
             animation: cardSlideIn 0.3s ease-out;
             position: relative;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+        
+        /* 선택된 카드 스타일 */
+        .card.selected {
+            border-color: #ff9800;
+            background: #fff3e0;
+            box-shadow: 0 4px 12px rgba(255, 152, 0, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        .card.selected::after {
+            content: "👆";
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #ff9800;
+            color: white;
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            animation: pulse 1s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
         }
         
         /* 내가 쓴 카드 스타일 */
         .card.my-card {
             border-color: #4caf50;
             background: #f1f8e9;
+        }
+        
+        .card.my-card.selected {
+            border-color: #ff9800;
+            background: #fff3e0;
         }
         
         .card.my-card::before {
@@ -144,6 +297,16 @@
             align-items: center;
             justify-content: center;
             font-size: 12px;
+            z-index: 1;
+        }
+        
+        .card.my-card.selected::before {
+            display: none;
+        }
+        
+        /* 숨겨진 카드 스타일 */
+        .card.hidden {
+            display: none;
         }
         
         @keyframes cardSlideIn {
@@ -190,7 +353,132 @@
             font-style: italic;
         }
         
-        @media (max-width: 500px) {
+        /* 오른쪽 섹션 스타일 */
+        .cards-header {
+            background: #fff3e0;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .filter-section {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .filter-section h3 {
+            margin: 0 0 10px 0;
+            color: #f57f17;
+        }
+        
+        .filter-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin: 10px 0;
+        }
+        
+        .filter-btn {
+            background: #e3f2fd;
+            border: 1px solid #2196f3;
+            color: #1976d2;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .filter-btn:hover, .filter-btn.active {
+            background: #2196f3;
+            color: white;
+        }
+        
+        .cards-container {
+            max-height: 600px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+        
+        .cards-container::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .cards-container::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        
+        .cards-container::-webkit-scrollbar-thumb {
+            background: #fbc02d;
+            border-radius: 10px;
+        }
+        
+        .cards-container::-webkit-scrollbar-thumb:hover {
+            background: #f9a825;
+        }
+        
+        .search-section {
+            margin-bottom: 15px;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        
+        .clear-filter {
+            background: #ff9800;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            margin-top: 10px;
+        }
+        
+        .clear-filter:hover {
+            background: #f57c00;
+        }
+        
+        .filter-info {
+            background: #e8f5e8;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+            font-size: 14px;
+            text-align: center;
+        }
+        
+        .writer-name, .target-name {
+            color: #1976d2;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+        
+        .writer-name:hover, .target-name:hover {
+            color: #0d47a1;
+            font-weight: bold;
+        }
+        
+        @media (max-width: 1024px) {
+            .main-container {
+                flex-direction: column;
+            }
+            
+            .selected-card-display {
+                width: 90%;
+                max-width: 400px;
+            }
+            
             .tree {
                 width: 300px;
                 height: 450px;
@@ -203,54 +491,102 @@
                 height: 220px;
             }
             
-            .card {
-                width: 280px;
+            .left-section, .right-section {
+                min-width: auto;
             }
         }
     </style>
 </head>
 <body>
     <h1>🌟 우리 반 칭찬 나무 🌟</h1>
-    <p>친구에게 칭찬을 하면 나무에 잎사귀(🍃)가 생겨요!</p>
+    <p style="text-align: center;">친구에게 칭찬을 하면 나무에 잎사귀(🍃)가 생겨요!</p>
     
-    <div class="user-info">
-        <label for="writerName">✏️ 내 이름: </label>
-        <input type="text" id="writerName" placeholder="내 이름을 입력하세요" onchange="updateUserInfo()">
-        <span id="currentUser"></span>
-    </div>
-    
-    <div class="controls">
-        <input type="text" id="friendName" placeholder="친구 이름을 입력하세요">
-        <input type="text" id="compliment" placeholder="따뜻한 칭찬을 적어주세요">
-        <br>
-        <button class="button" onclick="growTree()">🌱 칭찬하기</button>
-        <button class="button reset-button" onclick="resetMyContributions()">🔄 내가 쓴 글만 삭제</button>
-        <button class="button reset-button" id="resetAllButton" onclick="resetAllTree()" style="background-color: #d32f2f;" disabled>🗑️ 전체 초기화</button>
-        <div class="reset-info" id="resetInfo">
-            잎사귀 50개 이상일 때 전체 초기화가 가능해요
+    <div class="main-container">
+        <!-- 왼쪽 섹션: 나무와 컨트롤 -->
+        <div class="left-section">
+            <div class="user-info">
+                <label for="writerName">✏️ 내 이름: </label>
+                <input type="text" id="writerName" placeholder="내 이름을 입력하세요" onchange="updateUserInfo()">
+                <span id="currentUser"></span>
+            </div>
+            
+            <!-- 선택된 칭찬 카드 표시 영역 -->
+            <div class="selected-card-display" id="selectedCardDisplay">
+                <button class="close-selected" onclick="closeSelectedCard()">×</button>
+                <div class="selected-card-content" id="selectedCardContent">
+                    <!-- 선택된 카드 내용이 여기에 표시됩니다 -->
+                </div>
+            </div>
+            
+            <div class="controls">
+                <input type="text" id="friendName" placeholder="친구 이름을 입력하세요">
+                <input type="text" id="compliment" placeholder="따뜻한 칭찬을 적어주세요">
+                <br>
+                <button class="button" onclick="growTree()">🌱 칭찬하기</button>
+                <button class="button reset-button" onclick="resetMyContributions()">🔄 내가 쓴 글만 삭제</button>
+                <button class="button reset-button" id="resetAllButton" onclick="resetAllTree()" style="background-color: #d32f2f;" disabled>🗑️ 전체 초기화</button>
+                <div class="reset-info" id="resetInfo">
+                    잎사귀 50개 이상일 때 전체 초기화가 가능해요
+                </div>
+            </div>
+
+            <div class="stats" id="stats">
+                <div>🌳 전체 잎사귀: <span id="totalLeaves">0</span>개</div>
+                <div>✍️ 내가 쓴 잎사귀: <span id="myLeaves">0</span>개</div>
+            </div>
+
+            <div class="tree">
+                <div class="canopy" id="canopy"></div>
+            </div>
+        </div>
+        
+        <!-- 오른쪽 섹션: 칭찬 카드들 -->
+        <div class="right-section">
+            <div class="cards-header">
+                <h2>💌 칭찬 카드들</h2>
+                <p>카드를 클릭하면 나무 위에 크게 표시돼요!</p>
+            </div>
+            
+            <div class="filter-section">
+                <h3>🔍 필터링</h3>
+                
+                <div class="search-section">
+                    <input type="text" class="search-input" id="searchInput" placeholder="작성자나 대상자 이름으로 검색..." oninput="filterCards()">
+                </div>
+                
+                <div>
+                    <strong>👥 작성자별:</strong>
+                    <div class="filter-buttons" id="writerFilters"></div>
+                </div>
+                
+                <div style="margin-top: 15px;">
+                    <strong>🎯 대상자별:</strong>
+                    <div class="filter-buttons" id="targetFilters"></div>
+                </div>
+                
+                <button class="clear-filter" onclick="clearAllFilters()">🔄 전체 보기</button>
+                
+                <div class="filter-info" id="filterInfo">
+                    전체 칭찬 카드를 보고 있어요
+                </div>
+            </div>
+            
+            <div class="cards-container" id="cardArea"></div>
         </div>
     </div>
-
-    <div class="stats" id="stats">
-        <div>🌳 전체 잎사귀: <span id="totalLeaves">0</span>개</div>
-        <div>✍️ 내가 쓴 잎사귀: <span id="myLeaves">0</span>개</div>
-    </div>
-
-    <div class="tree">
-        <div class="canopy" id="canopy"></div>
-    </div>
-
-    <div id="cardArea"></div>
 
     <script>
         let currentWriter = '';
         let allPosts = JSON.parse(localStorage.getItem('praisePosts')) || [];
+        let currentFilter = { type: 'all', value: '' };
+        let selectedCardId = null;
 
         // 페이지 로드 시 저장된 데이터 복원
         window.onload = function() {
             loadSavedData();
             updateStats();
             updateResetButton();
+            updateFilterButtons();
         };
 
         function updateUserInfo() {
@@ -284,6 +620,64 @@
                 resetInfo.textContent = `잎사귀 ${50 - totalLeaves}개 더 필요해요 (현재 ${totalLeaves}/50)`;
                 resetInfo.style.color = '#666';
             }
+        }
+
+        function selectCard(postId) {
+            // 이전에 선택된 카드 선택 해제
+            const previousSelected = document.querySelector('.card.selected');
+            if (previousSelected) {
+                previousSelected.classList.remove('selected');
+            }
+            
+            // 새로운 카드 선택
+            const selectedCard = document.querySelector(`.card[data-post-id="${postId}"]`);
+            if (selectedCard) {
+                selectedCard.classList.add('selected');
+                selectedCardId = postId;
+                
+                // 선택된 카드 정보 가져오기
+                const post = allPosts.find(p => p.id == postId);
+                if (post) {
+                    showSelectedCard(post);
+                }
+            }
+        }
+
+        function showSelectedCard(post) {
+            const display = document.getElementById('selectedCardDisplay');
+            const content = document.getElementById('selectedCardContent');
+            
+            content.innerHTML = `
+                <div class="target-name-large">${post.friendName}님에게</div>
+                <div class="compliment-large">"${post.compliment}"</div>
+                <div class="writer-large">
+                    💝 ${post.writer}님의 칭찬 
+                    <small style="color: #666; font-weight: normal; margin-left: 10px;">
+                        (${new Date(post.timestamp).toLocaleDateString()})
+                    </small>
+                </div>
+            `;
+            
+            display.classList.add('show');
+            
+            // 스크롤을 선택된 카드 표시 영역으로 부드럽게 이동
+            display.scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'center' 
+            });
+        }
+
+        function closeSelectedCard() {
+            const display = document.getElementById('selectedCardDisplay');
+            display.classList.remove('show');
+            
+            // 선택된 카드 선택 해제
+            const selectedCard = document.querySelector('.card.selected');
+            if (selectedCard) {
+                selectedCard.classList.remove('selected');
+            }
+            
+            selectedCardId = null;
         }
 
         function growTree() {
@@ -323,6 +717,7 @@
                 // 통계 및 버튼 상태 업데이트
                 updateStats();
                 updateResetButton();
+                updateFilterButtons();
 
                 // 성취감 메시지
                 const myPostsCount = allPosts.filter(post => post.writer === currentWriter).length;
@@ -370,20 +765,25 @@
             const card = document.createElement("div");
             card.classList.add("card");
             card.dataset.postId = post.id;
+            card.dataset.writer = post.writer;
+            card.dataset.target = post.friendName;
             
             // 내가 쓴 글인지 확인
             if (post.writer === currentWriter) {
                 card.classList.add("my-card");
             }
 
+            // 카드 클릭 이벤트 추가
+            card.onclick = () => selectCard(post.id);
+
             card.innerHTML = `
                 <div style="display: flex; align-items: center; justify-content: center;">
                     <span style="font-size: 24px; margin-right: 10px;">💌</span>
                     <div>
-                        <strong style="color: #f57f17; font-size: 18px;">${post.friendName}</strong>에게<br>
+                        <strong style="color: #f57f17; font-size: 18px;" class="target-name" onclick="event.stopPropagation(); filterByTarget('${post.friendName}')">${post.friendName}</strong>에게<br>
                         <em style="color: #555;">"${post.compliment}"</em><br>
                         <small style="color: #888; margin-top: 5px; display: block;">
-                            - ${post.writer} (${new Date(post.timestamp).toLocaleDateString()})
+                            - <span class="writer-name" onclick="event.stopPropagation(); filterByWriter('${post.writer}')">${post.writer}</span> (${new Date(post.timestamp).toLocaleDateString()})
                         </small>
                     </div>
                 </div>
@@ -391,6 +791,127 @@
 
             const cardArea = document.getElementById("cardArea");
             cardArea.insertBefore(card, cardArea.firstChild);
+        }
+
+        function updateFilterButtons() {
+            const writers = [...new Set(allPosts.map(post => post.writer))];
+            const targets = [...new Set(allPosts.map(post => post.friendName))];
+            
+            // 작성자 필터 버튼 생성
+            const writerFilters = document.getElementById('writerFilters');
+            writerFilters.innerHTML = '';
+            writers.forEach(writer => {
+                const btn = document.createElement('span');
+                btn.className = 'filter-btn';
+                btn.textContent = writer;
+                btn.onclick = () => filterByWriter(writer);
+                writerFilters.appendChild(btn);
+            });
+            
+            // 대상자 필터 버튼 생성
+            const targetFilters = document.getElementById('targetFilters');
+            targetFilters.innerHTML = '';
+            targets.forEach(target => {
+                const btn = document.createElement('span');
+                btn.className = 'filter-btn';
+                btn.textContent = target;
+                btn.onclick = () => filterByTarget(target);
+                targetFilters.appendChild(btn);
+            });
+        }
+
+        function filterByWriter(writer) {
+            currentFilter = { type: 'writer', value: writer };
+            applyFilter();
+            updateFilterInfo(`✍️ ${writer}님이 작성한 칭찬`);
+            updateActiveButton('writer', writer);
+        }
+
+        function filterByTarget(target) {
+            currentFilter = { type: 'target', value: target };
+            applyFilter();
+            updateFilterInfo(`🎯 ${target}님이 받은 칭찬`);
+            updateActiveButton('target', target);
+        }
+
+        function filterCards() {
+            const searchTerm = document.getElementById('searchInput').value.trim().toLowerCase();
+            if (searchTerm === '') {
+                clearAllFilters();
+                return;
+            }
+            
+            currentFilter = { type: 'search', value: searchTerm };
+            applyFilter();
+            updateFilterInfo(`🔍 "${searchTerm}" 검색 결과`);
+            clearActiveButtons();
+        }
+
+        function applyFilter() {
+            const cards = document.querySelectorAll('.card');
+            let visibleCount = 0;
+            
+            cards.forEach(card => {
+                let shouldShow = false;
+                
+                switch (currentFilter.type) {
+                    case 'writer':
+                        shouldShow = card.dataset.writer === currentFilter.value;
+                        break;
+                    case 'target':
+                        shouldShow = card.dataset.target === currentFilter.value;
+                        break;
+                    case 'search':
+                        const writer = card.dataset.writer.toLowerCase();
+                        const target = card.dataset.target.toLowerCase();
+                        shouldShow = writer.includes(currentFilter.value) || target.includes(currentFilter.value);
+                        break;
+                    case 'all':
+                    default:
+                        shouldShow = true;
+                        break;
+                }
+                
+                if (shouldShow) {
+                    card.classList.remove('hidden');
+                    visibleCount++;
+                } else {
+                    card.classList.add('hidden');
+                }
+            });
+            
+            return visibleCount;
+        }
+
+        function clearAllFilters() {
+            currentFilter = { type: 'all', value: '' };
+            document.getElementById('searchInput').value = '';
+            applyFilter();
+            updateFilterInfo('전체 칭찬 카드를 보고 있어요');
+            clearActiveButtons();
+            closeSelectedCard(); // 필터 초기화 시 선택된 카드도 닫기
+        }
+
+        function updateFilterInfo(message) {
+            const filterInfo = document.getElementById('filterInfo');
+            const visibleCount = document.querySelectorAll('.card:not(.hidden)').length;
+            filterInfo.textContent = `${message} (${visibleCount}개)`;
+        }
+
+        function updateActiveButton(type, value) {
+            clearActiveButtons();
+            const buttons = document.querySelectorAll(`#${type === 'writer' ? 'writerFilters' : 'targetFilters'} .filter-btn`);
+            buttons.forEach(btn => {
+                if (btn.textContent === value) {
+                    btn.classList.add('active');
+                }
+            });
+        }
+
+        function clearActiveButtons() {
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
         }
 
         function resetMyContributions() {
@@ -410,6 +931,11 @@
                 // 내가 쓴 글들의 ID 수집
                 const myPostIds = allPosts.filter(post => post.writer === currentWriter).map(post => post.id);
                 
+                // 선택된 카드가 내 글이면 닫기
+                if (selectedCardId && myPostIds.includes(selectedCardId)) {
+                    closeSelectedCard();
+                }
+                
                 // 데이터에서 내 글들 제거
                 allPosts = allPosts.filter(post => post.writer !== currentWriter);
                 localStorage.setItem('praisePosts', JSON.stringify(allPosts));
@@ -425,6 +951,8 @@
 
                 updateStats();
                 updateResetButton();
+                updateFilterButtons();
+                clearAllFilters();
                 showMessage(`✅ 내가 쓴 ${myPostsCount}개의 글을 삭제했어요!`);
             }
         }
@@ -444,9 +972,12 @@
                 
                 document.getElementById("canopy").innerHTML = "";
                 document.getElementById("cardArea").innerHTML = "";
+                closeSelectedCard();
                 
                 updateStats();
                 updateResetButton();
+                updateFilterButtons();
+                clearAllFilters();
                 showMessage("🌱 칭찬 나무가 완전히 새로 시작되었어요!");
             }
         }

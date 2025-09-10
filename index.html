@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>칭찬 나무 (개인별 관리)</title>
+    <style>
+        body {
+            font-family: "Comic Sans MS", cursive;
+            background: #fffde7;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        h1 {
+            color: #f57f17;
+        }
+        
+        .tree {
+            position: relative;
+            width: 600px;
+            height: 800px;
+            margin: 0px auto;
+            background-image: url('trees.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center bottom;
+        }
+        
+        .canopy {
+            position: absolute;
+            top: 300px;
+            left: 100px;
+            width: 400px;
+            height: 200px;
+            border-radius: 50%;
+            overflow: visible;
+        }
+        
+        .leaf {
+            position: absolute;
+            font-size: 28px;
+            animation: leafGrow 0.5s ease-in-out;
+            cursor: pointer;
+        }
+        
+        /* 내가 쓴 잎사귀 스타일 */
+        .leaf.my-leaf {
+            filter: drop-shadow(0 0 3px #4caf50);
+        }
+        
+        @keyframes leafGrow {
+            0% {
+                transform: scale(0);
+                opacity: 0;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+        
+        .leaf:hover {
+            transform: scale(1.2);
+            transition: transform 0.2s;
+        }
+        
+        input {
+            padding: 8px;
+            margin: 5px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            font-size: 14px;
+        }
+        
+        .button {
+            background-color: #fbc02d;
+            color: #333;
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            margin: 10px;
+        }
+        
+        .button:hover {
+            background-color: #f9a825;
+            transform: translateY(-2px);
+            transition: all 0.2s;
+        }
+        
+        .reset-button {
+            background-color: #ff7043;
+        }
+        
+        .reset-button:hover {
+            background-color: #ff5722;
+        }
+        
+        /* 비활성화된 버튼 스타일 */
+        .button:disabled {
+            background-color: #cccccc;
+            color: #666666;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .button:disabled:hover {
+            background-color: #cccccc;
+            transform: none;
+        }
+        
+        .card {
+            background: #fff9c4;
+            border: 2px solid #fdd835;
+            border-radius: 10px;
+            margin: 10px auto;
+            padding: 15px;
+            width: 350px;
+            font-size: 16px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            animation: cardSlideIn 0.3s ease-out;
+            position: relative;
+        }
+        
+        /* 내가 쓴 카드 스타일 */
+        .card.my-card {
+            border-color: #4caf50;
+            background: #f1f8e9;
+        }
+        
+        .card.my-card::before {
+            content: "✍️";
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #4caf50;
+            color: white;
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+        
+        @keyframes cardSlideIn {
+            0% {
+                transform: translateY(-20px);
+                opacity: 0;
+            }
+            100% {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        .controls {
+            margin: 20px 0;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 15px;
+            display: inline-block;
+        }
+        
+        .user-info {
+            background: #e8f5e8;
+            padding: 10px;
+            border-radius: 10px;
+            margin: 10px 0;
+            display: inline-block;
+        }
+        
+        .stats {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px auto;
+            width: 300px;
+            display: inline-block;
+        }
+        
+        /* 전체 초기화 버튼 안내 메시지 */
+        .reset-info {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+            font-style: italic;
+        }
+        
+        @media (max-width: 500px) {
+            .tree {
+                width: 300px;
+                height: 450px;
+            }
+            
+            .canopy {
+                top: 40px;
+                left: 40px;
+                width: 220px;
+                height: 220px;
+            }
+            
+            .card {
+                width: 280px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>🌟 우리 반 칭찬 나무 🌟</h1>
+    <p>친구에게 칭찬을 하면 나무에 잎사귀(🍃)가 생겨요!</p>
+    
+    <div class="user-info">
+        <label for="writerName">✏️ 내 이름: </label>
+        <input type="text" id="writerName" placeholder="내 이름을 입력하세요" onchange="updateUserInfo()">
+        <span id="currentUser"></span>
+    </div>
+    
+    <div class="controls">
+        <input type="text" id="friendName" placeholder="친구 이름을 입력하세요">
+        <input type="text" id="compliment" placeholder="따뜻한 칭찬을 적어주세요">
+        <br>
+        <button class="button" onclick="growTree()">🌱 칭찬하기</button>
+        <button class="button reset-button" onclick="resetMyContributions()">🔄 내가 쓴 글만 삭제</button>
+        <button class="button reset-button" id="resetAllButton" onclick="resetAllTree()" style="background-color: #d32f2f;" disabled>🗑️ 전체 초기화</button>
+        <div class="reset-info" id="resetInfo">
+            잎사귀 50개 이상일 때 전체 초기화가 가능해요
+        </div>
+    </div>
+
+    <div class="stats" id="stats">
+        <div>🌳 전체 잎사귀: <span id="totalLeaves">0</span>개</div>
+        <div>✍️ 내가 쓴 잎사귀: <span id="myLeaves">0</span>개</div>
+    </div>
+
+    <div class="tree">
+        <div class="canopy" id="canopy"></div>
+    </div>
+
+    <div id="cardArea"></div>
+
+    <script>
+        let currentWriter = '';
+        let allPosts = JSON.parse(localStorage.getItem('praisePosts')) || [];
+
+        // 페이지 로드 시 저장된 데이터 복원
+        window.onload = function() {
+            loadSavedData();
+            updateStats();
+            updateResetButton();
+        };
+
+        function updateUserInfo() {
+            const writerInput = document.getElementById('writerName');
+            currentWriter = writerInput.value.trim();
+            const currentUserSpan = document.getElementById('currentUser');
+            
+            if (currentWriter) {
+                currentUserSpan.textContent = `(현재: ${currentWriter})`;
+                currentUserSpan.style.color = '#4caf50';
+                currentUserSpan.style.fontWeight = 'bold';
+            } else {
+                currentUserSpan.textContent = '';
+            }
+            updateStats();
+        }
+
+        function updateResetButton() {
+            const resetButton = document.getElementById('resetAllButton');
+            const resetInfo = document.getElementById('resetInfo');
+            const totalLeaves = allPosts.length;
+            
+            if (totalLeaves >= 50) {
+                resetButton.disabled = false;
+                resetButton.style.backgroundColor = '#d32f2f';
+                resetInfo.textContent = `잎사귀가 ${totalLeaves}개! 전체 초기화가 가능해요`;
+                resetInfo.style.color = '#d32f2f';
+            } else {
+                resetButton.disabled = true;
+                resetButton.style.backgroundColor = '#cccccc';
+                resetInfo.textContent = `잎사귀 ${50 - totalLeaves}개 더 필요해요 (현재 ${totalLeaves}/50)`;
+                resetInfo.style.color = '#666';
+            }
+        }
+
+        function growTree() {
+            const friendName = document.getElementById("friendName").value.trim();
+            const compliment = document.getElementById("compliment").value.trim();
+            
+            if (!currentWriter) {
+                alert("먼저 내 이름을 입력해주세요! ✏️");
+                document.getElementById('writerName').focus();
+                return;
+            }
+
+            if (friendName && compliment) {
+                const postId = Date.now() + Math.random(); // 고유 ID 생성
+                const newPost = {
+                    id: postId,
+                    writer: currentWriter,
+                    friendName: friendName,
+                    compliment: compliment,
+                    timestamp: new Date().toISOString()
+                };
+
+                // 데이터 저장
+                allPosts.push(newPost);
+                localStorage.setItem('praisePosts', JSON.stringify(allPosts));
+
+                // 잎사귀 생성
+                createLeaf(newPost);
+                
+                // 카드 생성
+                createCard(newPost);
+
+                // 입력창 초기화
+                document.getElementById("friendName").value = "";
+                document.getElementById("compliment").value = "";
+
+                // 통계 및 버튼 상태 업데이트
+                updateStats();
+                updateResetButton();
+
+                // 성취감 메시지
+                const myPostsCount = allPosts.filter(post => post.writer === currentWriter).length;
+                const totalPosts = allPosts.length;
+                
+                if (myPostsCount === 1) {
+                    showMessage("🎉 첫 번째 칭찬을 남겼어요!");
+                } else if (myPostsCount % 5 === 0) {
+                    showMessage(`🌟 ${myPostsCount}번째 칭찬이에요! 멋져요!`);
+                }
+                
+                // 50개 달성 시 특별 메시지
+                if (totalPosts === 50) {
+                    showMessage("🎊 축하해요! 잎사귀 50개 달성! 이제 전체 초기화가 가능해요!");
+                }
+
+            } else {
+                alert("친구 이름과 칭찬을 모두 입력해 주세요! 💝");
+            }
+        }
+
+        function createLeaf(post) {
+            const canopy = document.getElementById("canopy");
+            const leaf = document.createElement("div");
+            leaf.classList.add("leaf");
+            leaf.innerHTML = "🍃";
+            leaf.title = `${post.writer} → ${post.friendName}: ${post.compliment}`;
+            leaf.dataset.postId = post.id;
+            
+            // 내가 쓴 글인지 확인
+            if (post.writer === currentWriter) {
+                leaf.classList.add("my-leaf");
+            }
+
+            // 랜덤 위치 배치
+            const maxX = canopy.clientWidth - 40;
+            const maxY = canopy.clientHeight - 40;
+            leaf.style.left = Math.random() * maxX + "px";
+            leaf.style.top = Math.random() * maxY + "px";
+
+            canopy.appendChild(leaf);
+        }
+
+        function createCard(post) {
+            const card = document.createElement("div");
+            card.classList.add("card");
+            card.dataset.postId = post.id;
+            
+            // 내가 쓴 글인지 확인
+            if (post.writer === currentWriter) {
+                card.classList.add("my-card");
+            }
+
+            card.innerHTML = `
+                <div style="display: flex; align-items: center; justify-content: center;">
+                    <span style="font-size: 24px; margin-right: 10px;">💌</span>
+                    <div>
+                        <strong style="color: #f57f17; font-size: 18px;">${post.friendName}</strong>에게<br>
+                        <em style="color: #555;">"${post.compliment}"</em><br>
+                        <small style="color: #888; margin-top: 5px; display: block;">
+                            - ${post.writer} (${new Date(post.timestamp).toLocaleDateString()})
+                        </small>
+                    </div>
+                </div>
+            `;
+
+            const cardArea = document.getElementById("cardArea");
+            cardArea.insertBefore(card, cardArea.firstChild);
+        }
+
+        function resetMyContributions() {
+            if (!currentWriter) {
+                alert("먼저 내 이름을 입력해주세요! ✏️");
+                return;
+            }
+
+            const myPostsCount = allPosts.filter(post => post.writer === currentWriter).length;
+            
+            if (myPostsCount === 0) {
+                alert("삭제할 내 글이 없어요! 🤔");
+                return;
+            }
+
+            if (confirm(`정말로 내가 쓴 ${myPostsCount}개의 칭찬을 삭제하시겠어요? 😢`)) {
+                // 내가 쓴 글들의 ID 수집
+                const myPostIds = allPosts.filter(post => post.writer === currentWriter).map(post => post.id);
+                
+                // 데이터에서 내 글들 제거
+                allPosts = allPosts.filter(post => post.writer !== currentWriter);
+                localStorage.setItem('praisePosts', JSON.stringify(allPosts));
+
+                // 화면에서 내 잎사귀들 제거
+                myPostIds.forEach(postId => {
+                    const leaf = document.querySelector(`.leaf[data-post-id="${postId}"]`);
+                    const card = document.querySelector(`.card[data-post-id="${postId}"]`);
+                    
+                    if (leaf) leaf.remove();
+                    if (card) card.remove();
+                });
+
+                updateStats();
+                updateResetButton();
+                showMessage(`✅ 내가 쓴 ${myPostsCount}개의 글을 삭제했어요!`);
+            }
+        }
+
+        function resetAllTree() {
+            const totalPosts = allPosts.length;
+            
+            // 50개 미만이면 실행하지 않음 (버튼이 비활성화되어 있어야 하지만 안전장치)
+            if (totalPosts < 50) {
+                alert("잎사귀가 50개 이상일 때만 전체 초기화가 가능해요! 🌳");
+                return;
+            }
+
+            if (confirm(`⚠️ 주의: 모든 사람의 칭찬 ${totalPosts}개가 모두 삭제됩니다!\n정말로 전체 초기화를 하시겠어요?`)) {
+                allPosts = [];
+                localStorage.setItem('praisePosts', JSON.stringify(allPosts));
+                
+                document.getElementById("canopy").innerHTML = "";
+                document.getElementById("cardArea").innerHTML = "";
+                
+                updateStats();
+                updateResetButton();
+                showMessage("🌱 칭찬 나무가 완전히 새로 시작되었어요!");
+            }
+        }
+
+        function loadSavedData() {
+            // 저장된 데이터로 잎사귀와 카드 복원
+            allPosts.forEach(post => {
+                createLeaf(post);
+                createCard(post);
+            });
+        }
+
+        function updateStats() {
+            const totalLeaves = allPosts.length;
+            const myLeaves = currentWriter ? allPosts.filter(post => post.writer === currentWriter).length : 0;
+            
+            document.getElementById('totalLeaves').textContent = totalLeaves;
+            document.getElementById('myLeaves').textContent = myLeaves;
+        }
+
+        function showMessage(text) {
+            const message = document.createElement("div");
+            message.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: #4caf50;
+                color: white;
+                padding: 15px 25px;
+                border-radius: 25px;
+                font-size: 18px;
+                font-weight: bold;
+                z-index: 1000;
+                animation: messageShow 2s ease-in-out forwards;
+            `;
+            message.textContent = text;
+            document.body.appendChild(message);
+
+            setTimeout(() => {
+                document.body.removeChild(message);
+            }, 2000);
+        }
+
+        // 메시지 애니메이션
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes messageShow {
+                0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+                20% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
+                100% { opacity: 0; transform: translate(-50%, -50%) scale(1); }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // 엔터키 지원
+        document.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && document.activeElement.id !== 'writerName') {
+                growTree();
+            }
+        });
+    </script>
+</body>
+</html>

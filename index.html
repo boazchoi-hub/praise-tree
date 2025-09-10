@@ -622,26 +622,32 @@
             }
         }
 
-        function selectCard(postId) {
-            // 이전에 선택된 카드 선택 해제
-            const previousSelected = document.querySelector('.card.selected');
-            if (previousSelected) {
-                previousSelected.classList.remove('selected');
-            }
-            
-            // 새로운 카드 선택
-            const selectedCard = document.querySelector(`.card[data-post-id="${postId}"]`);
-            if (selectedCard) {
-                selectedCard.classList.add('selected');
-                selectedCardId = postId;
-                
-                // 선택된 카드 정보 가져오기
-                const post = allPosts.find(p => p.id == postId);
-                if (post) {
-                    showSelectedCard(post);
-                }
-            }
-        }
+        function updateResetButton() {
+    const resetButton = document.getElementById('resetAllButton');
+    const resetInfo = document.getElementById('resetInfo');
+    const totalLeaves = allPosts.length;
+    
+    // 이름이 '최병우'인지 확인
+    const isAuthorized = currentWriter === '최병우';
+    
+    if (isAuthorized) {
+        resetButton.disabled = false;
+        resetButton.style.backgroundColor = '#d32f2f';
+        resetInfo.textContent = `관리자 권한으로 전체 초기화가 가능해요 (현재 ${totalLeaves}개)`;
+        resetInfo.style.color = '#d32f2f';
+    } else if (currentWriter) {
+        resetButton.disabled = true;
+        resetButton.style.backgroundColor = '#cccccc';
+        resetInfo.textContent = `전체 초기화는 관리자만 가능해요`;
+        resetInfo.style.color = '#666';
+    } else {
+        resetButton.disabled = true;
+        resetButton.style.backgroundColor = '#cccccc';
+        resetInfo.textContent = `전체 초기화는 관리자만 가능해요`;
+        resetInfo.style.color = '#666';
+    }
+}
+
 
         function showSelectedCard(post) {
             const display = document.getElementById('selectedCardDisplay');
@@ -958,37 +964,30 @@
         }
 
         function resetAllTree() {
-            const totalPosts = allPosts.length;
-            
-            // 50개 미만이면 실행하지 않음 (버튼이 비활성화되어 있어야 하지만 안전장치)
-            if (totalPosts < 50) {
-                alert("잎사귀가 50개 이상일 때만 전체 초기화가 가능해요! 🌳");
-                return;
-            }
+    const totalPosts = allPosts.length;
+    
+    // 관리자 권한 확인
+    if (currentWriter !== '최병우') {
+        alert("전체 초기화는 관리자만 가능합니다! 👨‍💼");
+        return;
+    }
 
-            if (confirm(`⚠️ 주의: 모든 사람의 칭찬 ${totalPosts}개가 모두 삭제됩니다!\n정말로 전체 초기화를 하시겠어요?`)) {
-                allPosts = [];
-                localStorage.setItem('praisePosts', JSON.stringify(allPosts));
-                
-                document.getElementById("canopy").innerHTML = "";
-                document.getElementById("cardArea").innerHTML = "";
-                closeSelectedCard();
-                
-                updateStats();
-                updateResetButton();
-                updateFilterButtons();
-                clearAllFilters();
-                showMessage("🌱 칭찬 나무가 완전히 새로 시작되었어요!");
-            }
-        }
+    if (confirm(`⚠️ 주의: 모든 사람의 칭찬 ${totalPosts}개가 모두 삭제됩니다!\n정말로 전체 초기화를 하시겠어요?`)) {
+        allPosts = [];
+        localStorage.setItem('praisePosts', JSON.stringify(allPosts));
+        
+        document.getElementById("canopy").innerHTML = "";
+        document.getElementById("cardArea").innerHTML = "";
+        closeSelectedCard();
+        
+        updateStats();
+        updateResetButton();
+        updateFilterButtons();
+        clearAllFilters();
+        showMessage("🌱 칭찬 나무가 완전히 새로 시작되었어요!");
+    }
+}
 
-        function loadSavedData() {
-            // 저장된 데이터로 잎사귀와 카드 복원
-            allPosts.forEach(post => {
-                createLeaf(post);
-                createCard(post);
-            });
-        }
 
         function updateStats() {
             const totalLeaves = allPosts.length;
